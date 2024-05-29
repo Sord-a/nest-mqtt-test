@@ -1,0 +1,63 @@
+version: '3.9'
+
+services:
+  alarm-aggregator:
+    build:
+      dockerfile: ./alarm-aggregator.Dockerfile
+    command: ["npm", "run", "start:dev"]
+    links:
+      - mqtt-broker
+    depends_on:
+      - mqtt-broker
+    volumes:
+      - ./alarm-aggregator:/app
+      - /app/node_modules
+    ports:
+      - 3001:3001
+    networks:
+      - mqttnetwork
+    environment:
+      - env
+      - connectUrl
+      - connectTimeout
+      - reconnectPeriod
+    restart: always
+
+  test-publisher:
+    build:
+      dockerfile: ./test-publisher.Dockerfile
+    command: [ "npm", "run", "start:dev" ]
+    links:
+      - mqtt-broker
+    depends_on:
+      - alarm-aggregator
+      - mqtt-broker
+    volumes:
+      - ./test-publisher-app:/app
+      - /app/node_modules
+    ports:
+      - 3004:3001
+    networks:
+      - mqttnetwork
+    environment:
+      - env
+      - connectUrl
+      - connectTimeout
+      - reconnectPeriod
+    restart: always
+
+  mqtt-broker:
+    image: eclipse-mosquitto
+    container_name: mqtt-broker
+    ports:
+      - "1883:1883"
+    networks:
+      - mqttnetwork
+    volumes:
+      - ./mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf
+
+networks:
+  mqttnetwork:
+    name: mqttnetwork
+volumes:
+  data: ~
