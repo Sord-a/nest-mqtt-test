@@ -12,6 +12,7 @@ There are services and repositories with related logic also .spec file that cove
 
 ## Running the apps
 
+create .env from .env.example and specify the variables in both project folders
 Running `docker-compose.yml` with `docker-compose up` command will start `alarm-aggregator` and `test-publisher-app` as
 well as mqtt broker within one network
 Each nest.js app image will be build with corresponding docker files.
